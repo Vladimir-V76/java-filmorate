@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationFilmException;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -14,6 +15,10 @@ import java.util.*;
 public class FilmController {
 
     private static final Map<Long, Film> films = new HashMap<>();
+
+    public static void clear() {
+        films.clear();
+    }
 
     @PostMapping
     public static Film create(@RequestBody Film film) {
@@ -39,13 +44,16 @@ public class FilmController {
 
     private static void checkFilmValidation(Film film) {
         String filmValidation = "Ok";
+        if (film.getDescription() == null || film.getReleaseDate() == null) {
+            filmValidation = "Запрос не полный, отсутствует часть информации";
+        }
         if (film.getName() == null || film.getName().isBlank()) {
             filmValidation = "Название не должно быть пустым";
         }
-        if (film.getDescription().length() > 200) {
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
             filmValidation = "Максимальная длина описания — 200 символов";
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             filmValidation = "Дата релиза — не раньше 28 декабря 1895 года";
         }
         if (film.getDuration() <= 0) {
@@ -57,7 +65,7 @@ public class FilmController {
     }
 
     @PutMapping
-    public Film update(@RequestBody Film film) {
+    public static Film update(@RequestBody Film film) {
         Film currectedFilm;
         try {
             if (film.getId() == null) {
@@ -67,10 +75,11 @@ public class FilmController {
                     .filter(f -> Objects.equals(f.getId(), film.getId()))
                     .findFirst();
             if (searchFilm.isEmpty()) {
-                throw new ValidationFilmException("Фильм с id=" + film.getId() + " не найден");
+                throw new FilmNotFoundException("Фильм с id=" + film.getId() + " не найден");
             }
+            checkFilmValidation(film);
             currectedFilm = searchFilm.get();
-        } catch (ValidationFilmException e) {
+        } catch (ValidationFilmException | FilmNotFoundException e) {
             log.warn("Ошибка валидации при изменение данных фильма: {}", e.getMessage());
             throw e;
         }

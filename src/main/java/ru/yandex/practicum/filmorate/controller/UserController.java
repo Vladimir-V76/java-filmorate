@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -12,7 +13,12 @@ import java.util.*;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private static final Map<Long, User> users = new HashMap<>();
+
+    public static void clear() {
+        users.clear();
+    }
 
     @PostMapping
     public static User create(@RequestBody User user) {
@@ -38,16 +44,19 @@ public class UserController {
 
     private static void checkUserValidation(User user) {
         String userValidation = "Ok";
+        if (user.getBirthday() == null) {
+            userValidation = "Запрос не полный, отсутствует дата рождения";
+        }
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             userValidation = "Электронная почта не может быть пустой и должна содержать символ @";
         }
-        if (user.getLogin() == null || user.getLogin().contains(" ")) {
+        if (user.getLogin() == null || user.getLogin().contains(" ") || user.getLogin().isBlank()) {
             userValidation = "Логин не может быть пустым и содержать пробелы";
         }
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
             userValidation = "Дата рождения не может быть в будущем";
         }
         if (!userValidation.equals("Ok")) {
@@ -56,7 +65,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user) {
+    public static User update(@RequestBody User user) {
         User currectedUser;
         try {
             if (user.getId() == null) {
@@ -66,11 +75,11 @@ public class UserController {
                     .filter(u -> Objects.equals(u.getId(), user.getId()))
                     .findFirst();
             if (searchUser.isEmpty()) {
-                throw new ValidationUserException("Пользователь с id=" + user.getId() + " не найден");
+                throw new UserNotFoundException("Пользователь с id=" + user.getId() + " не найден");
             }
             currectedUser = searchUser.get();
             checkUserValidation(user);
-        } catch (ValidationUserException e) {
+        } catch (ValidationUserException | UserNotFoundException e) {
             log.warn("Ошибка валидации при изменение данных пользователя: {}", e.getMessage());
             throw e;
         }
