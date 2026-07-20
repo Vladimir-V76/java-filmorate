@@ -15,6 +15,8 @@ import ru.yandex.practicum.filmorate.exception.ValidationFilmException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 
@@ -23,19 +25,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class FilmorateApplicationTests {
+    @Autowired
+    FilmController filmController;
+    @Autowired
+    UserController userController;
+    @Autowired
+    private TestRestTemplate restTemplate;
 
     @BeforeEach
     void clearFilmsAndUsers() {
-        FilmController.clear();
-        UserController.clear();
+        InMemoryFilmStorage.clear();
+        InMemoryUserStorage.clear();
     }
 
     @Test
     void contextLoads() {
     }
-
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Test
     void shouldReturn415IfPostRequestOnFilmIsEmpty() {
@@ -105,12 +110,12 @@ class FilmorateApplicationTests {
         film.setDescription("1234567890");
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Название не должно быть пустым");
 
         film.setName("  ");
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Название не должно быть пустым");
 
         Film film1 = new Film();
@@ -119,16 +124,16 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Название не должно быть пустым");
 
         film.setName(null);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Название не должно быть пустым");
     }
 
@@ -139,7 +144,7 @@ class FilmorateApplicationTests {
         film.setDescription("1234567890");
         film.setReleaseDate(LocalDate.of(1987, 12, 12));
         film.setDuration(140);
-        FilmController.create(film);
+        filmController.create(film);
 
         Film film1 = new Film();
         film1.setId(2L);
@@ -149,7 +154,7 @@ class FilmorateApplicationTests {
         film1.setDuration(140);
 
         assertThatExceptionOfType(FilmNotFoundException.class)
-                .isThrownBy(() -> FilmController.update(film1))
+                .isThrownBy(() -> filmController.update(film1))
                 .withMessageContaining("Фильм с id=2 не найден");
     }
 
@@ -167,7 +172,7 @@ class FilmorateApplicationTests {
         film.setDuration(140);
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Максимальная длина описания — 200 символов");
 
         Film film1 = new Film();
@@ -176,11 +181,11 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Максимальная длина описания — 200 символов");
     }
 
@@ -193,7 +198,7 @@ class FilmorateApplicationTests {
         film.setDuration(140);
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Запрос не полный, отсутствует часть информации");
 
         Film film1 = new Film();
@@ -202,11 +207,11 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Запрос не полный, отсутствует часть информации");
     }
 
@@ -231,7 +236,7 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(2L);
         HttpHeaders headers = new HttpHeaders();
@@ -254,7 +259,7 @@ class FilmorateApplicationTests {
         film.setDuration(140);
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Дата релиза — не раньше 28 декабря 1895 года");
 
         Film film1 = new Film();
@@ -263,11 +268,11 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Дата релиза — не раньше 28 декабря 1895 года");
     }
 
@@ -280,7 +285,7 @@ class FilmorateApplicationTests {
         film.setDuration(140);
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Запрос не полный, отсутствует часть информации");
 
         Film film1 = new Film();
@@ -289,11 +294,11 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Запрос не полный, отсутствует часть информации");
     }
 
@@ -313,7 +318,7 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(2L);
         HttpHeaders headers = new HttpHeaders();
@@ -336,12 +341,12 @@ class FilmorateApplicationTests {
         film.setDuration(0);
 
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Продолжительность фильма должна быть положительным числом");
 
         film.setDuration(-1);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.create(film))
+                .isThrownBy(() -> filmController.create(film))
                 .withMessageContaining("Продолжительность фильма должна быть положительным числом");
 
         Film film1 = new Film();
@@ -350,16 +355,16 @@ class FilmorateApplicationTests {
         film1.setReleaseDate(LocalDate.of(1987, 12, 12));
         film1.setDuration(140);
 
-        FilmController.create(film1);
+        filmController.create(film1);
 
         film.setId(1L);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Продолжительность фильма должна быть положительным числом");
 
         film.setDuration(0);
         assertThatExceptionOfType(ValidationFilmException.class)
-                .isThrownBy(() -> FilmController.update(film))
+                .isThrownBy(() -> filmController.update(film))
                 .withMessageContaining("Продолжительность фильма должна быть положительным числом");
     }
 
@@ -367,6 +372,7 @@ class FilmorateApplicationTests {
     void shouldReturn415IfPostRequestOnUserIsEmpty() {
         String emptyRequest = "{}";
         ResponseEntity<String> response = restTemplate.postForEntity("/users", emptyRequest, String.class);
+        System.out.println(response.getBody());
         assertEquals(HttpStatus.UNSUPPORTED_MEDIA_TYPE, response.getStatusCode());
     }
 
@@ -429,7 +435,7 @@ class FilmorateApplicationTests {
         user.setLogin("user");
         user.setName("00000");
         user.setBirthday(LocalDate.of(2000, 1, 1));
-        UserController.create(user);
+        userController.create(user);
 
         User user1 = new User();
         user1.setId(2L);
@@ -439,7 +445,7 @@ class FilmorateApplicationTests {
         user1.setBirthday(LocalDate.of(2001, 2, 2));
 
         assertThatExceptionOfType(UserNotFoundException.class)
-                .isThrownBy(() -> UserController.update(user1))
+                .isThrownBy(() -> userController.update(user1))
                 .withMessageContaining("Пользователь с id=2 не найден");
     }
 
@@ -452,17 +458,17 @@ class FilmorateApplicationTests {
         user.setBirthday(LocalDate.of(1987, 12, 12));
 
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
 
         user.setEmail(" ");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
 
         user.setEmail("1234_1223.ru");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
 
         User user1 = new User();
@@ -470,21 +476,21 @@ class FilmorateApplicationTests {
         user1.setLogin("user");
         user1.setName("00000");
         user1.setBirthday(LocalDate.of(2000, 1, 1));
-        UserController.create(user1);
+        userController.create(user1);
 
         user.setId(1L);
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
 
         user.setEmail(" ");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
 
         user.setEmail(null);
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Электронная почта не может быть пустой и должна содержать символ @");
     }
 
@@ -526,17 +532,17 @@ class FilmorateApplicationTests {
         user.setBirthday(LocalDate.of(1987, 12, 12));
 
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
 
         user.setLogin(" user ");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
 
         user.setLogin(" ");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
 
         User user1 = new User();
@@ -548,17 +554,17 @@ class FilmorateApplicationTests {
         restTemplate.postForEntity("/users", user1, User.class);
 
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
 
         user.setLogin(" user ");
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
 
         user.setLogin(null);
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Логин не может быть пустым и содержать пробелы");
     }
 
@@ -679,7 +685,7 @@ class FilmorateApplicationTests {
         user.setBirthday(LocalDate.now().plusDays(1L));
 
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Дата рождения не может быть в будущем");
 
         User user1 = new User();
@@ -687,11 +693,11 @@ class FilmorateApplicationTests {
         user1.setLogin("user1");
         user1.setName("00000");
         user1.setBirthday(LocalDate.of(2000, 1, 1));
-        UserController.create(user1);
+        userController.create(user1);
 
         user.setId(1L);
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Дата рождения не может быть в будущем");
     }
 
@@ -704,7 +710,7 @@ class FilmorateApplicationTests {
         user.setBirthday(null);
 
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.create(user))
+                .isThrownBy(() -> userController.create(user))
                 .withMessageContaining("Запрос не полный, отсутствует дата рождения");
 
         User user1 = new User();
@@ -712,11 +718,11 @@ class FilmorateApplicationTests {
         user1.setLogin("user1");
         user1.setName("00000");
         user1.setBirthday(LocalDate.of(2000, 1, 1));
-        UserController.create(user1);
+        userController.create(user1);
 
         user.setId(1L);
         assertThatExceptionOfType(ValidationUserException.class)
-                .isThrownBy(() -> UserController.update(user))
+                .isThrownBy(() -> userController.update(user))
                 .withMessageContaining("Запрос не полный, отсутствует дата рождения");
     }
 
