@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateItemException;
-import ru.yandex.practicum.filmorate.exception.NotFoundItemException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -49,14 +48,8 @@ public class UserService {
         validationId(friendId);
         User user = findUserById(id);
         User friend = findUserById(friendId);
-        if (!user.getFriendsSet().remove(friend.getId())) {
-            throw new NotFoundItemException("У пользователя с id=" + id +
-                    " в списке друзей нет пользователя с id=" + friendId);
-        }
-        if (!friend.getFriendsSet().remove(user.getId())) {
-            throw new NotFoundItemException("У пользователя с id=" + id +
-                    " в списке друзей нет пользователя с id=" + friendId);
-        }
+        user.getFriendsSet().remove(friend.getId());
+        friend.getFriendsSet().remove(user.getId());
         log.trace("Пользователь с id={} успешно удален из друзей пользователя с id={} и наоборот", friendId, id);
         return friend;
     }
