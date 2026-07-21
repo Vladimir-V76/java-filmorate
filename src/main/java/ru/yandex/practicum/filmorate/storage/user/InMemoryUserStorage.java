@@ -15,10 +15,15 @@ import java.util.*;
 @Getter
 public class InMemoryUserStorage implements UserStorage {
 
-    private static final Map<Long, User> users = new HashMap<>();
+    private static final Map<Long, User> users = new TreeMap<>();
 
     public static void clear() {
         users.clear();
+    }
+
+    @Override
+    public void delete(User user) {
+
     }
 
     @Override
@@ -96,5 +101,14 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public Collection<User> findAll() {
         return users.values();
+    }
+
+    public User findUserById(Long id) {
+        if (users.containsKey(id)) {
+            log.trace("Пользователь с id={} успешно найден", id);
+            return users.get(id);
+        } else {
+            throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
+        }
     }
 }

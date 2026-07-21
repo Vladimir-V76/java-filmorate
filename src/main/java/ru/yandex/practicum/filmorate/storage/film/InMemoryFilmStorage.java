@@ -13,10 +13,15 @@ import java.util.*;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private static final Map<Long, Film> films = new HashMap<>();
+    private static final Map<Long, Film> films = new TreeMap<>();
 
     public static void clear() {
         films.clear();
+    }
+
+    @Override
+    public void delete(Film film) {
+
     }
 
     @Override
@@ -94,5 +99,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> findAll() {
         return films.values();
+    }
+
+    @Override
+    public Film findFilmById(Long id) {
+        if (films.containsKey(id)) {
+            log.trace("Фильм с id={} успешно найден", id);
+            return films.get(id);
+        } else {
+            throw new FilmNotFoundException("Фильм с id=" + id + " не найден");
+        }
     }
 }
