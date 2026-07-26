@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -17,4 +18,7 @@ public class Film {
 
     @EqualsAndHashCode.Exclude
     private Set<Long> likedFilm = new HashSet<>();
+
+    private List<FilmGenre> genre;
+    private FilmRating rating;
 }

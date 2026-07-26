@@ -4,8 +4,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @EqualsAndHashCode(of = {"email"})
@@ -15,5 +15,5 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-    private Set<Long> friendsSet = new HashSet<>();
+    private Map<Long, ConfirmationFriendship> friendsMap = new HashMap<>();
 }

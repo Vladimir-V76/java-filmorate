@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.DuplicateItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
+import ru.yandex.practicum.filmorate.model.ConfirmationFriendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -28,11 +29,11 @@ public class UserService {
         validationId(friendId);
         User user = userStorage.findUserById(id);
         User friend = userStorage.findUserById(friendId);
-        if (!user.getFriendsSet().add(friend.getId())) {
+        if (!(user.getFriendsMap().put(friend.getId(), ConfirmationFriendship.FALSE) == null)) {
             throw new DuplicateItemException("Пользователь с id=" + friendId +
                     " уже находится с списке друзей пользователя с id=" + id);
         }
-        if (!friend.getFriendsSet().add(user.getId())) {
+        if (!friend.getFriendsMap().add(user.getId())) {
             throw new DuplicateItemException("Пользователь с id=" + friendId +
                     " уже находится с списке друзей пользователя с id=" + id);
         }
@@ -45,8 +46,8 @@ public class UserService {
         validationId(friendId);
         User user = userStorage.findUserById(id);
         User friend = userStorage.findUserById(friendId);
-        user.getFriendsSet().remove(friend.getId());
-        friend.getFriendsSet().remove(user.getId());
+        user.getFriendsMap().remove(friend.getId());
+        friend.getFriendsMap().remove(user.getId());
         log.trace("Пользователь с id={} успешно удален из друзей пользователя с id={} и наоборот", friendId, id);
         return friend;
     }
@@ -55,7 +56,7 @@ public class UserService {
         validationId(id);
         User user = userStorage.findUserById(id);
 
-        return user.getFriendsSet().stream()
+        return user.getFriendsMap().keySet().stream()
                 .map(u -> userStorage.findUserById(u))
                 .toList();
     }
@@ -65,8 +66,8 @@ public class UserService {
         validationId(otherId);
         User user = userStorage.findUserById(id);
         User otherUser = userStorage.findUserById(otherId);
-        return user.getFriendsSet().stream()
-                .filter(u -> otherUser.getFriendsSet().contains(u))
+        return user.getFriendsMap().keySet().stream()
+                .filter(u -> otherUser.getFriendsMap().containsKey(u))
                 .map(u -> userStorage.findUserById(u))
                 .toList();
     }
