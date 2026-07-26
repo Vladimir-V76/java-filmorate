@@ -53,7 +53,7 @@ WHERE f.films_id=1
 ```sql
 SELECT *
 FROM users AS u
-JOIN friends AS f OF u.user_id=f.user_id
+JOIN friends AS f ON u.user_id=f.user_id
 WHERE f.user_id=1
 ```
 6.Получение списка общих друзей пользователей id=1 и id=2
@@ -61,7 +61,7 @@ WHERE f.user_id=1
 SELECT *
 FROM (SELECT *
 	FROM users AS u
-	JOIN friends AS f OF u.user_id=f.user_id
+	JOIN friends AS f ON u.user_id=f.user_id
 	WHERE f.user_id=1) AS friend1
 WHERE friend1.friend_id=2
 ```
