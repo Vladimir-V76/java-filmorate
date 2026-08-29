@@ -5,13 +5,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component("inMemoryUserStorage")
 @Getter
 public class InMemoryUserStorage implements UserStorage {
 
@@ -103,10 +103,10 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-    public User findUserById(Long id) {
+    public Optional<User> findUserById(Long id) {
         if (users.containsKey(id)) {
             log.trace("Пользователь с id={} успешно найден", id);
-            return users.get(id);
+            return Optional.of(users.get(id));
         } else {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
         }

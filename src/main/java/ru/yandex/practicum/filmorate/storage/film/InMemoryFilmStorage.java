@@ -1,16 +1,18 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationFilmException;
-import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.film.Film;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
-@Component
+@Primary
+@Component ("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
 
     private static final Map<Long, Film> films = new TreeMap<>();
