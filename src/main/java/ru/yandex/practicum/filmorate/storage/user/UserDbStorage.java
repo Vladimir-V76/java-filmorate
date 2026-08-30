@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.ConfirmFriendRepository;
 import ru.yandex.practicum.filmorate.dal.UserRepository;
@@ -14,7 +13,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
+
 @Component("inDbUserStorage")
 public class UserDbStorage implements UserStorage {
     private final UserRepository userRepository;
