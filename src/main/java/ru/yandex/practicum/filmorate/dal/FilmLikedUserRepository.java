@@ -4,12 +4,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.dto.film.FilmLikedUser;
-import ru.yandex.practicum.filmorate.model.film.FilmGenre;
 
 import java.util.List;
 
 @Repository
-public class FilmLikedUserRepository extends BaseRepository<FilmLikedUser>{
+public class FilmLikedUserRepository extends BaseRepository<FilmLikedUser> {
 
     public static final String FIND_BY_ID_QUERY = "SELECT * FROM liked_film_user WHERE film_id = ?";
     public static final String INSERT_QUERY = "INSERT INTO liked_film_user (film_id, user_id) VALUES (?, ?)";
@@ -19,9 +18,11 @@ public class FilmLikedUserRepository extends BaseRepository<FilmLikedUser>{
         super(jdbc, mapper);
     }
 
-    public List<FilmLikedUser> findById(long filmId) { return findMany(FIND_BY_ID_QUERY, filmId); }
+    public List<FilmLikedUser> findById(long filmId) {
+        return findMany(FIND_BY_ID_QUERY, filmId);
+    }
 
-    public void create (Long filmId, Long userId) {
+    public void create(Long filmId, Long userId) {
         insert(
                 false,
                 INSERT_QUERY,

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.mapper;
 
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.dto.film.UpdateFilmRequest;
 import ru.yandex.practicum.filmorate.dto.user.ConfirmFriendDto;
 import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
@@ -10,7 +9,6 @@ import ru.yandex.practicum.filmorate.model.user.ConfirmFriend;
 import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -35,7 +33,7 @@ public class UserMapper {
 
     public static List<ConfirmFriendDto> mapToConfirmFriendDto(List<ConfirmFriend> confirmFriend) {
         List<ConfirmFriendDto> dto = new ArrayList<>();
-        confirmFriend.forEach( f -> {
+        confirmFriend.forEach(f -> {
             ConfirmFriendDto d = new ConfirmFriendDto();
             d.setFriendId(f.getFriendId());
             d.setConfirmation(f.isConfirmation());
@@ -48,12 +46,16 @@ public class UserMapper {
         User user = new User();
         user.setEmail(newUser.getEmail());
         user.setLogin(newUser.getLogin());
-        user.setName(newUser.getName());
+        if (newUser.getName() == null || newUser.getName().isBlank()) {
+            user.setName(newUser.getLogin());
+        } else {
+            user.setName(newUser.getName());
+        }
         user.setBirthday(newUser.getBirthday());
         user.setFriendsSet(newUser.getFriendsSet());
         if (!newUser.getConfirmFriends().isEmpty()) {
             Map<Long, ConfirmFriend> confirmFriendMap = newUser.getConfirmFriends().stream()
-                            .collect(Collectors.toMap(ConfirmFriend::getFriendId, Function.identity()));
+                    .collect(Collectors.toMap(ConfirmFriend::getFriendId, Function.identity()));
             user.setConfirmFriends(confirmFriendMap);
         }
         return user;
@@ -64,8 +66,14 @@ public class UserMapper {
         user.setId(updateUser.getId());
         user.setEmail(updateUser.getEmail());
         user.setLogin(updateUser.getLogin());
-        user.setName(updateUser.getName());
+        if (updateUser.getName() == null || updateUser.getName().isBlank()) {
+            user.setName(updateUser.getLogin());
+        } else {
+            user.setName(updateUser.getName());
+        }
         user.setBirthday(updateUser.getBirthday());
+        user.setConfirmFriends(updateUser.getConfirmFriends().stream()
+                .collect(Collectors.toMap(ConfirmFriend::getFriendId, Function.identity())));
 
         return user;
     }
@@ -77,17 +85,32 @@ public class UserMapper {
         updateUser.setLogin(user.getLogin());
         updateUser.setName(user.getName());
         updateUser.setBirthday(user.getBirthday());
+        updateUser.setConfirmFriends(user.getConfirmFriends().values().stream().toList());
 
         return updateUser;
     }
 
     public static User updateUserFields(User user, UpdateUserRequest updateUser) {
-        if (updateUser.hasId()) { user.setId(updateUser.getId()); }
-        if (updateUser.hasEmail()) { user.setEmail(updateUser.getEmail()); }
-        if (updateUser.hasLogin()) { user.setLogin(updateUser.getLogin()); }
-        if (updateUser.hasName()) { user.setName(updateUser.getName()); }
-        if (updateUser.hasBirthday()) {user.setBirthday(updateUser.getBirthday()); }
-
+        if (updateUser.hasId()) {
+            user.setId(updateUser.getId());
+        }
+        if (updateUser.hasEmail()) {
+            user.setEmail(updateUser.getEmail());
+        }
+        if (updateUser.hasLogin()) {
+            user.setLogin(updateUser.getLogin());
+        }
+        if (updateUser.hasName()) {
+            user.setName(updateUser.getName());
+        }
+        if (updateUser.hasBirthday()) {
+            user.setBirthday(updateUser.getBirthday());
+        }
+        if (updateUser.hasConfirmFriends()) {
+            user.setConfirmFriends(updateUser.getConfirmFriends().stream()
+                    .collect(Collectors.toMap(ConfirmFriend::getFriendId, Function.identity())));
+        }
         return user;
     }
+
 }

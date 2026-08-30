@@ -2,13 +2,13 @@ package ru.yandex.practicum.filmorate.storage.film.mpa;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dal.FilmMpaRepository;
-import ru.yandex.practicum.filmorate.exception.FilmGenreNotFoundException;
+import ru.yandex.practicum.filmorate.exception.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.film.FilmMpa;
 
 import java.util.Collection;
 
 @Component("inDbFilmMpaStorage")
-public class FilmMpaDbStorage implements FilmMpaStorage{
+public class FilmMpaDbStorage implements FilmMpaStorage {
 
     public FilmMpaRepository filmMpaRepository;
 
@@ -39,6 +39,6 @@ public class FilmMpaDbStorage implements FilmMpaStorage{
     @Override
     public FilmMpa findFilmMpaById(Long id) {
         return filmMpaRepository.findById(id)
-                .orElseThrow(() -> new FilmGenreNotFoundException("Рейтинг фильма не найден. ID: " + id));
+                .orElseThrow(() -> new MpaNotFoundException("Рейтинг фильма не найден. ID: " + id));
     }
 }

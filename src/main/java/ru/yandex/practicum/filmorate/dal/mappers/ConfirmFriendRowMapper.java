@@ -11,9 +11,9 @@ import java.sql.SQLException;
 public class ConfirmFriendRowMapper implements RowMapper<ConfirmFriend> {
     @Override
     public ConfirmFriend mapRow(ResultSet rs, int rowNum) throws SQLException {
-       ConfirmFriend confirmFriend = new ConfirmFriend();
-       confirmFriend.setFriendId(rs.getLong("friend_id"));
-       confirmFriend.setConfirmation(rs.getBoolean("is_confirmed"));
-    return confirmFriend;
+        ConfirmFriend confirmFriend = new ConfirmFriend();
+        confirmFriend.setFriendId(rs.getLong("friend_id"));
+        confirmFriend.setConfirmation(rs.getBoolean("is_confirmed"));
+        return confirmFriend;
     }
 }

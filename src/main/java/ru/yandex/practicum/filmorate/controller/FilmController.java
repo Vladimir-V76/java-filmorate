@@ -36,7 +36,9 @@ public class FilmController {
     }
 
     @GetMapping
-    public Collection<FilmDto> findAll() { return filmService.findAll(); }
+    public Collection<FilmDto> findAll() {
+        return filmService.findAll();
+    }
 
     @GetMapping("/")
     public FilmDto noneId() {

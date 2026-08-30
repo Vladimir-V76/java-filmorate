@@ -56,8 +56,7 @@ public class FilmService {
 
     public FilmDto addLikeFilm(Long id, Long userId) {
         Film film = filmStorage.findFilmById(id);
-        User user = userStorage.findUserById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден. ID: " + userId));
+        User user = userStorage.findUserById(userId);
         if (!film.getLikedFilm().add(user.getId())) {
             String message = "Пользователь с id=%s уже лайкнул фильм с id=%d";
             throw new DuplicateItemException(String.format(message, userId, id));
@@ -69,8 +68,7 @@ public class FilmService {
 
     public FilmDto deleteLikeFilm(Long id, Long userId) {
         Film film = filmStorage.findFilmById(id);
-        User user = userStorage.findUserById(userId)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден. ID: " + userId));
+        User user = userStorage.findUserById(userId);
         if (!film.getLikedFilm().remove(user.getId())) {
             String message = "Фильм с id=%s пользователь с id=%d не лайкал.";
             throw new NotFoundItemException(String.format(message, id, userId));

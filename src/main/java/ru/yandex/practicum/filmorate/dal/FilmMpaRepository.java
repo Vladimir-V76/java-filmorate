@@ -18,8 +18,11 @@ public class FilmMpaRepository extends BaseRepository<FilmMpa> {
         super(jdbc, mapper);
     }
 
-    public Optional<FilmMpa> findById(Long id) { return findOne(FIND_BY_ID_QUERY, id); };
+    public Optional<FilmMpa> findById(Long id) {
+        return findOne(FIND_BY_ID_QUERY, id);
+    }
 
     public List<FilmMpa> findAll() {
-        return findMany(FIND_ALL_QUERY); }
+        return findMany(FIND_ALL_QUERY);
+    }
 }

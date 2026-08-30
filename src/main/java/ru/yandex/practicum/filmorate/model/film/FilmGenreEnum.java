@@ -5,13 +5,13 @@ public enum FilmGenreEnum {
 
     public static FilmGenreEnum from(String genre) {
         return switch (genre.toLowerCase()) {
-          case "comedy" -> COMEDY;
-          case "drama" -> DRAMA;
-          case "cartoon" -> CARTOON;
-          case "thriller" -> THRILLER;
-          case "documentary" -> DOCUMENTARY;
-          case "action" -> ACTION;
-          default -> null;
+            case "comedy" -> COMEDY;
+            case "drama" -> DRAMA;
+            case "cartoon" -> CARTOON;
+            case "thriller" -> THRILLER;
+            case "documentary" -> DOCUMENTARY;
+            case "action" -> ACTION;
+            default -> null;
         };
     }
 

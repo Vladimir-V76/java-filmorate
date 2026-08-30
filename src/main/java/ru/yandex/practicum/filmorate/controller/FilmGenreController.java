@@ -26,7 +26,9 @@ public class FilmGenreController {
     }
 
     @GetMapping
-    public Collection<FilmGenreDto> findAll() { return filmGenreService.findAll(); }
+    public Collection<FilmGenreDto> findAll() {
+        return filmGenreService.findAll();
+    }
 
     @GetMapping("/")
     public FilmGenreDto noneId() {

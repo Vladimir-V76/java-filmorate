@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
 import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.DuplicateItemException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
 import ru.yandex.practicum.filmorate.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.model.user.ConfirmFriend;
@@ -15,9 +14,7 @@ import ru.yandex.practicum.filmorate.model.user.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -36,7 +33,7 @@ public class UserService {
     public UserDto create(NewUserRequest newUser) {
         User user = UserMapper.mapToUserFormNewUserRequest(newUser);
         checkUserValidation(user);
-       return UserMapper.mapToUserDto(userStorage.create(user));
+        return UserMapper.mapToUserDto(userStorage.create(user));
     }
 
     public UserDto update(UpdateUserRequest updateUser) {
@@ -46,21 +43,18 @@ public class UserService {
     }
 
     public Collection<UserDto> findAll() {
-        Collection<User> users = userStorage.findAll();
-        users.forEach(u -> u.setConfirmFriends(userDbStorage.findListConfirmedFriendsByUserId(u.getId())));
-        users.forEach( u -> u.setFriendsSet(getFriendsSetFromMapConfirmFriends(u.getConfirmFriends())));
-        return users.stream()
+        return userStorage.findAll().stream()
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
 
     public UserDto getUserById(Long id) {
-        return UserMapper.mapToUserDto(getUserFromStorageById(id));
+        return UserMapper.mapToUserDto(userStorage.findUserById(id));
     }
 
     public UserDto addOnFriends(Long id, Long friendId) {
-        User user = getUserFromStorageById(id);
-        User friend = getUserFromStorageById(friendId);
+        User user = userStorage.findUserById(id);
+        User friend = userStorage.findUserById(friendId);
         Map<Long, ConfirmFriend> userConfirmFriendMap = user.getConfirmFriends();
 
         if (userConfirmFriendMap.containsKey(friendId)) {
@@ -98,8 +92,8 @@ public class UserService {
     }
 
     public UserDto deleteOnFriends(Long id, Long friendId) {
-        User user = getUserFromStorageById(id);
-        User friend = getUserFromStorageById(friendId);
+        User user = userStorage.findUserById(id);
+        User friend = userStorage.findUserById(friendId);
         user.getFriendsSet().remove(friend.getId());
         user.getConfirmFriends().remove(friend.getId());
         userStorage.update(user);
@@ -109,19 +103,19 @@ public class UserService {
     }
 
     public List<UserDto> getFriendsListUserById(Long id) {
-        User user = getUserFromStorageById(id);
+        User user = userStorage.findUserById(id);
         return user.getFriendsSet().stream()
-                .map(this::getUserFromStorageById)
+                .map(u -> userStorage.findUserById(u))
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
 
     public List<UserDto> getListMutualFriends(Long id, Long otherId) {
-        User user = getUserFromStorageById(id);
-        User otherUser = getUserFromStorageById(otherId);
+        User user = userStorage.findUserById(id);
+        User otherUser = userStorage.findUserById(otherId);
         return user.getFriendsSet().stream()
                 .filter(u -> otherUser.getFriendsSet().contains(u))
-                .map(this::getUserFromStorageById)
+                .map(u -> userStorage.findUserById(u))
                 .map(UserMapper::mapToUserDto)
                 .toList();
     }
@@ -140,21 +134,5 @@ public class UserService {
         if (!userValidation.equals("Ok")) {
             throw new ValidationUserException(userValidation);
         }
-    }
-
-    public User getUserFromStorageById(Long id) {
-        User user = userStorage.findUserById(id)
-                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден. ID: " + id));
-        user.setConfirmFriends(userDbStorage.findListConfirmedFriendsByUserId(user.getId()));
-        user.setFriendsSet(getFriendsSetFromMapConfirmFriends(user.getConfirmFriends()));
-
-        return user;
-    }
-
-    public Set<Long> getFriendsSetFromMapConfirmFriends(Map<Long, ConfirmFriend> confirmFriends) {
-        return confirmFriends.values().stream()
-                .filter(ConfirmFriend::isConfirmation)
-                .map(ConfirmFriend::getFriendId)
-                .collect(Collectors.toCollection(HashSet::new));
     }
 }

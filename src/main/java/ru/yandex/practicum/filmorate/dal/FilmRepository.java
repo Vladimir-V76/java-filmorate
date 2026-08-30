@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class FilmRepository extends BaseRepository<Film>{
+public class FilmRepository extends BaseRepository<Film> {
 
     public static final String FIND_ALL_QUERY = "SELECT * FROM films f LEFT JOIN mpa m ON f.mpa_id = m.mpa_id";
     public static final String FIND_BY_ID_QUERY =
@@ -26,12 +26,15 @@ public class FilmRepository extends BaseRepository<Film>{
     }
 
     public List<Film> findAll() {
-        return findMany(FIND_ALL_QUERY); }
+        return findMany(FIND_ALL_QUERY);
+    }
 
-    public Optional<Film> findById(Long filmId) { return findOne(FIND_BY_ID_QUERY, filmId); }
+    public Optional<Film> findById(Long filmId) {
+        return findOne(FIND_BY_ID_QUERY, filmId);
+    }
 
     public Film create(Film film, Long mpaId) {
-        Long mpaStatus = mpaId >0 ? mpaId : null;
+        Long mpaStatus = mpaId > 0 ? mpaId : null;
         long id = insert(
                 true,
                 INSERT_QUERY,
@@ -46,7 +49,7 @@ public class FilmRepository extends BaseRepository<Film>{
     }
 
     public Film update(Film film, Long mpaId) {
-        Long mpaStatus = mpaId >0 ? mpaId : null;
+        Long mpaStatus = mpaId > 0 ? mpaId : null;
         update(
                 UPDATE_QUERY,
                 film.getName(),

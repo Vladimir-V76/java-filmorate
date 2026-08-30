@@ -29,7 +29,7 @@ public class UserRepository extends BaseRepository<User> {
     }
 
     public Optional<User> findById(long userId) {
-                return findOne(FIND_BY_ID, userId);
+        return findOne(FIND_BY_ID, userId);
     }
 
     public User create(User user) {

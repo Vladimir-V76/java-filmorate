@@ -26,7 +26,9 @@ public class FilmMpaController {
     }
 
     @GetMapping
-    public Collection<FilmMpaDto> findAll() { return filmMpaService.findAll(); }
+    public Collection<FilmMpaDto> findAll() {
+        return filmMpaService.findAll();
+    }
 
     @GetMapping("/")
     public FilmMpaDto noneId() {

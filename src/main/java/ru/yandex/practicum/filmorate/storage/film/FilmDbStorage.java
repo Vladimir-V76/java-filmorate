@@ -84,7 +84,9 @@ public class FilmDbStorage implements FilmStorage {
                 filmGenreRepository.create(fg, filmId);
             });
         }
-        if (!film.getLikedFilm().isEmpty()) {updateSetFilmLikedUser(film); }
+        if (!film.getLikedFilm().isEmpty()) {
+            updateSetFilmLikedUser(film);
+        }
         updatedFilm.setLikedFilm(findSetFilmLikedUserByFilmId(updatedFilm.getId()));
         return updatedFilm;
     }
@@ -111,14 +113,14 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    public List<FilmGenre> findListFilmGenresByFilmId(Long filmId) {
+    private List<FilmGenre> findListFilmGenresByFilmId(Long filmId) {
         return filmGenreRepository.findByFilmId(filmId).stream().toList();
     }
 
-    public Set<Long> findSetFilmLikedUserByFilmId(Long filmId) {
+    private Set<Long> findSetFilmLikedUserByFilmId(Long filmId) {
         return filmLikedUserRepository.findById(filmId).stream()
-                    .map(FilmLikedUser::getUserId)
-                    .collect(Collectors.toCollection(HashSet::new));
+                .map(FilmLikedUser::getUserId)
+                .collect(Collectors.toCollection(HashSet::new));
     }
 
     public FilmMpa findFilmMpaById(Long id) {
@@ -131,7 +133,7 @@ public class FilmDbStorage implements FilmStorage {
                 .orElseThrow(() -> new FilmGenreNotFoundException("Указан не корректный id жанра: " + id));
     }
 
-    public void updateSetFilmLikedUser(Film film) {
+    private void updateSetFilmLikedUser(Film film) {
         filmLikedUserRepository.delete(film.getId());
         film.getLikedFilm().forEach(l -> filmLikedUserRepository.create(film.getId(), l));
     }

@@ -17,10 +17,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     private static final Map<Long, User> users = new TreeMap<>();
 
-    public static void clear() {
-        users.clear();
-    }
-
     @Override
     public void delete(User user) {
 
@@ -103,10 +99,10 @@ public class InMemoryUserStorage implements UserStorage {
         return users.values();
     }
 
-    public Optional<User> findUserById(Long id) {
+    public User findUserById(Long id) {
         if (users.containsKey(id)) {
             log.trace("Пользователь с id={} успешно найден", id);
-            return Optional.of(users.get(id));
+            return users.get(id);
         } else {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден");
         }

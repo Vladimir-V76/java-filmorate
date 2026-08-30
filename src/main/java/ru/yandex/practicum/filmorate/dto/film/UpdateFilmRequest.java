@@ -19,17 +19,31 @@ public class UpdateFilmRequest {
     private List<FilmGenreDto> genres;
     private FilmMpaDto mpa;
 
-    public boolean hasId() { return !(id == null); }
+    public boolean hasId() {
+        return !(id == null);
+    }
 
-    public boolean hasName() { return !(name == null || name.isBlank()); }
+    public boolean hasName() {
+        return !(name == null || name.isBlank());
+    }
 
-    public boolean hasDescription() { return !(description == null || description.isBlank()); }
+    public boolean hasDescription() {
+        return !(description == null || description.isBlank());
+    }
 
-    public boolean hasReleaseDate() { return !(releaseDate == null); }
+    public boolean hasReleaseDate() {
+        return !(releaseDate == null);
+    }
 
-    public boolean hasDuration() { return duration > 0; }
+    public boolean hasDuration() {
+        return duration > 0;
+    }
 
-    public boolean hasGenres() { return !(genres == null || genres.isEmpty()); }
+    public boolean hasGenres() {
+        return !(genres == null || genres.isEmpty());
+    }
 
-    public boolean hasMpa() { return !(mpa == null); }
+    public boolean hasMpa() {
+        return !(mpa == null);
+    }
 }

@@ -5,8 +5,11 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.model.user.ConfirmFriend;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class UpdateUserRequest {
@@ -21,13 +24,29 @@ public class UpdateUserRequest {
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
 
-    public boolean hasId() {return !(id == null); }
+    private List<ConfirmFriend> confirmFriends = new ArrayList<>();
 
-    public boolean hasEmail() { return !(email == null || email.isBlank()); }
+    public boolean hasId() {
+        return !(id == null);
+    }
 
-    public boolean hasLogin() { return !(login == null || login.isBlank()); }
+    public boolean hasEmail() {
+        return !(email == null || email.isBlank());
+    }
 
-    public boolean hasName() { return !(name == null || name.isBlank()); }
+    public boolean hasLogin() {
+        return !(login == null || login.isBlank());
+    }
 
-    public boolean hasBirthday() { return !(birthday == null); }
+    public boolean hasName() {
+        return !(name == null || name.isBlank());
+    }
+
+    public boolean hasBirthday() {
+        return !(birthday == null);
+    }
+
+    public boolean hasConfirmFriends() {
+        return !(confirmFriends == null || confirmFriends.isEmpty());
+    }
 }

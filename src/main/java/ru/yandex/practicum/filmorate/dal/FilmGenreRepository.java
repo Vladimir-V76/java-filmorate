@@ -23,9 +23,13 @@ public class FilmGenreRepository extends BaseRepository<FilmGenre> {
         super(jdbc, mapper);
     }
 
-    public List<FilmGenre> findByFilmId(long filmId) { return findMany(FIND_BY_ID_QUERY, filmId); }
+    public List<FilmGenre> findByFilmId(long filmId) {
+        return findMany(FIND_BY_ID_QUERY, filmId);
+    }
 
-    public Optional<FilmGenre> findByGenreId(Long id) { return findOne(FIND_BY_GENRE_ID_QUERY, id); }
+    public Optional<FilmGenre> findByGenreId(Long id) {
+        return findOne(FIND_BY_GENRE_ID_QUERY, id);
+    }
 
     public void create(FilmGenre filmGenre, Long filmId) {
         insert(
@@ -44,5 +48,6 @@ public class FilmGenreRepository extends BaseRepository<FilmGenre> {
     }
 
     public List<FilmGenre> findAll() {
-        return findMany(FIND_ALL_QUERY); }
+        return findMany(FIND_ALL_QUERY);
+    }
 }

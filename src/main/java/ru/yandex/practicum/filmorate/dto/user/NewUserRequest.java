@@ -26,5 +26,5 @@ public class NewUserRequest {
     @Past(message = "Дата рождения не может быть в будущем")
     private LocalDate birthday;
     private Set<Long> friendsSet = new HashSet<>();
-    private List<ConfirmFriend> ConfirmFriends = new ArrayList<>();
+    private List<ConfirmFriend> confirmFriends = new ArrayList<>();
 }

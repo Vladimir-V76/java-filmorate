@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.dto.user;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.model.user.ConfirmFriend;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -14,5 +13,5 @@ public class UserDto {
     private String login;
     private String name;
     private LocalDate birthday;
-    private List<ConfirmFriendDto> ConfirmFriends = new ArrayList<>();
+    private List<ConfirmFriendDto> confirmFriends = new ArrayList<>();
 }

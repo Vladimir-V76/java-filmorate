@@ -12,14 +12,10 @@ import java.util.*;
 
 @Slf4j
 @Primary
-@Component ("inMemoryFilmStorage")
+@Component("inMemoryFilmStorage")
 public class InMemoryFilmStorage implements FilmStorage {
 
     private static final Map<Long, Film> films = new TreeMap<>();
-
-    public static void clear() {
-        films.clear();
-    }
 
     @Override
     public void delete(Film film) {
