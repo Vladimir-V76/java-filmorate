@@ -15,5 +15,5 @@ public class User {
     private String name;
     private LocalDate birthday;
     private Set<Long> friendsSet = new HashSet<>(); //подтвержденные пользователи
-    private Map<Long, ConfirmFriend> ConfirmFriends = new HashMap<>();
+    private Map<Long, ConfirmFriend> confirmFriends = new HashMap<>();
 }
