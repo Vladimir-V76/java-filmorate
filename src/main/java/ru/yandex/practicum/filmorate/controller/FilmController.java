@@ -2,98 +2,79 @@ package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationFilmException;
+import ru.yandex.practicum.filmorate.exception.ValidationUserException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
+    private final FilmStorage inMemoryFilmStorage;
+    FilmService filmService;
 
-    private static final Map<Long, Film> films = new HashMap<>();
-
-    public static void clear() {
-        films.clear();
+    public FilmController(FilmStorage inMemoryFilmStorage, FilmService filmService) {
+        this.inMemoryFilmStorage = inMemoryFilmStorage;
+        this.filmService = filmService;
     }
 
     @PostMapping
-    public static Film create(@RequestBody Film film) {
-        try {
-            checkFilmValidation(film);
-        } catch (ValidationFilmException e) {
-            log.warn("Ошибка валидации при создании фильма: {}", e.getMessage());
-            throw e;
-        }
-        film.setId(getNextId());
-        films.put(film.getId(), film);
-        log.info("Фильм с id={} успешно добавлен", film.getId());
-        return film;
-    }
-
-    private static long getNextId() {
-        long currentMaxId = films.keySet().stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
-    }
-
-    private static void checkFilmValidation(Film film) {
-        String filmValidation = "Ok";
-        if (film.getDescription() == null || film.getReleaseDate() == null) {
-            filmValidation = "Запрос не полный, отсутствует часть информации";
-        }
-        if (film.getName() == null || film.getName().isBlank()) {
-            filmValidation = "Название не должно быть пустым";
-        }
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            filmValidation = "Максимальная длина описания — 200 символов";
-        }
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            filmValidation = "Дата релиза — не раньше 28 декабря 1895 года";
-        }
-        if (film.getDuration() <= 0) {
-            filmValidation = "Продолжительность фильма должна быть положительным числом";
-        }
-        if (!filmValidation.equals("Ok")) {
-            throw new ValidationFilmException(filmValidation);
-        }
+    public Film create(@RequestBody Film film) {
+        return inMemoryFilmStorage.create(film);
     }
 
     @PutMapping
-    public static Film update(@RequestBody Film film) {
-        Film currectedFilm;
-        try {
-            if (film.getId() == null) {
-                throw new ValidationFilmException("Id должен быть указан");
-            }
-            Optional<Film> searchFilm = films.values().stream()
-                    .filter(f -> Objects.equals(f.getId(), film.getId()))
-                    .findFirst();
-            if (searchFilm.isEmpty()) {
-                throw new FilmNotFoundException("Фильм с id=" + film.getId() + " не найден");
-            }
-            checkFilmValidation(film);
-            currectedFilm = searchFilm.get();
-        } catch (ValidationFilmException | FilmNotFoundException e) {
-            log.warn("Ошибка валидации при изменение данных фильма: {}", e.getMessage());
-            throw e;
-        }
-        currectedFilm.setName(film.getName());
-        currectedFilm.setDuration(film.getDuration());
-        currectedFilm.setDescription(film.getDescription());
-        currectedFilm.setReleaseDate(film.getReleaseDate());
-        log.info("Данные фильма с id={} успешно изменены", film.getId());
-        films.put(currectedFilm.getId(), currectedFilm);
-        return currectedFilm;
+    public Film update(@RequestBody Film film) {
+        return inMemoryFilmStorage.update(film);
     }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        return inMemoryFilmStorage.findAll();
+    }
+
+    @GetMapping("/")
+    public Film noneId() {
+        log.trace("Передан Get запрос получение фильма по id без id");
+        throw new ValidationUserException("Id должен быть указан.");
+    }
+
+    @GetMapping("/{id}")
+    public Film getFilmById(@PathVariable Long id) {
+        log.trace("Передан Get запрос получение фильма по id={}", id);
+        return filmService.getFilmById(id);
+    }
+
+    @PutMapping({"//like/{userId}", "/{id}/like/", "//like/"})
+    public Film noneIdOFFilmIdOrUserIdInPutMapping() {
+        log.trace("Передан Put запрос на лайк фильма пользователем без id");
+        throw new ValidationUserException("Id фильма и id пользователя должны быть указаны.");
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLikeFilm(@PathVariable Long id, @PathVariable Long userId) {
+        log.trace("Передан Put запрос на лайк фильма с id={} пользователем с id={}", id, userId);
+        return filmService.addLikeFilm(id, userId);
+    }
+
+    @DeleteMapping({"//like/{userId}", "/{id}/like/", "//like/"})
+    public Film noneIdOFFilmIdOrUserIdInDeleteMapping() {
+        log.trace("Передан Delete запрос на удаление лайка из фильма пользователем без id");
+        throw new ValidationUserException("Id фильма и id пользователя должны быть указаны.");
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLikeFilm(@PathVariable Long id, @PathVariable Long userId) {
+        log.trace("Передан Delete запрос на удаление лайка из фильма с id={} пользователем с id={}", id, userId);
+        return filmService.deleteLikeFilm(id, userId);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getFirstFewFilms(@RequestParam(defaultValue = "10") int count) {
+        log.trace("Передан Get запрос на получение первых {} фильмов с наибольшим рейтингом", count);
+        return filmService.getPopularFilms(count);
     }
 }
