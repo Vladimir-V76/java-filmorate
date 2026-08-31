@@ -18,11 +18,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     private static final Map<Long, Film> films = new TreeMap<>();
 
     @Override
-    public void delete(Film film) {
-
-    }
-
-    @Override
     public Film create(Film film) {
         try {
             checkFilmValidation(film);

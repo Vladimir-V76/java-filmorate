@@ -17,16 +17,6 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     }
 
     @Override
-    public FilmGenre create(FilmGenre filmGenre) {
-        return null;
-    }
-
-    @Override
-    public FilmGenre update(FilmGenre filmGenre) {
-        return null;
-    }
-
-    @Override
     public void delete(FilmGenre filmGenre) {
         Long id = filmGenre.getId();
         filmGenreRepository.findByGenreId(id)

@@ -6,9 +6,6 @@ import java.util.Collection;
 
 public interface FilmGenreStorage {
 
-    FilmGenre create(FilmGenre filmGenre);
-
-    FilmGenre update(FilmGenre filmGenre);
 
     void delete(FilmGenre filmGenre);
 

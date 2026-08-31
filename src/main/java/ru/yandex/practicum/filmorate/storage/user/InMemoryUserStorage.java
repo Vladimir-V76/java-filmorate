@@ -18,11 +18,6 @@ public class InMemoryUserStorage implements UserStorage {
     private static final Map<Long, User> users = new TreeMap<>();
 
     @Override
-    public void delete(User user) {
-
-    }
-
-    @Override
     public User create(User user) {
         try {
             checkUserValidation(user);

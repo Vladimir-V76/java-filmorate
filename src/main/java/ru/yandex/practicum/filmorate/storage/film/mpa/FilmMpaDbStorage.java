@@ -17,16 +17,6 @@ public class FilmMpaDbStorage implements FilmMpaStorage {
     }
 
     @Override
-    public FilmMpa create(FilmMpa filmMpa) {
-        return null;
-    }
-
-    @Override
-    public FilmMpa update(FilmMpa filmMpa) {
-        return null;
-    }
-
-    @Override
     public void delete(FilmMpa filmMpa) {
         Long id = filmMpa.getId();
         filmMpaRepository.findById(id)

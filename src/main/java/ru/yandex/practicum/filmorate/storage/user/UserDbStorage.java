@@ -63,7 +63,6 @@ public class UserDbStorage implements UserStorage {
         return users;
     }
 
-    @Override
     public void delete(User user) {
         Long userId = user.getId();
         userRepository.findById(userId)
