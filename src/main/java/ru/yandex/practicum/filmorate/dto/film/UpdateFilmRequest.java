@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Data
 public class UpdateFilmRequest {
@@ -16,6 +17,7 @@ public class UpdateFilmRequest {
     private String description;
     private LocalDate releaseDate;
     private int duration;
+    private Set<Long> likedFilm;
     private List<FilmGenreDto> genres;
     private FilmMpaDto mpa;
 
@@ -37,6 +39,10 @@ public class UpdateFilmRequest {
 
     public boolean hasDuration() {
         return duration > 0;
+    }
+
+    public boolean hasLikedFilm() {
+        return !(likedFilm == null || likedFilm.isEmpty());
     }
 
     public boolean hasGenres() {

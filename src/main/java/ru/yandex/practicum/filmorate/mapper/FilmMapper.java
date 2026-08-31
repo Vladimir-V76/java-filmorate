@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.film.FilmMpaEnum;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Slf4j
@@ -67,6 +68,11 @@ public class FilmMapper {
         film.setDescription(updateFilmRequest.getDescription());
         film.setReleaseDate(updateFilmRequest.getReleaseDate());
         film.setDuration(updateFilmRequest.getDuration());
+        if (updateFilmRequest.hasLikedFilm()) {
+            film.setLikedFilm(updateFilmRequest.getLikedFilm());
+        } else {
+            film.setLikedFilm(new HashSet<>());
+        }
         if (updateFilmRequest.hasGenres()) {
             film.setGenres(mapListFilmGenreFromListFilmGenreDto(updateFilmRequest.getGenres()));
         }
@@ -84,7 +90,7 @@ public class FilmMapper {
         updateFilmRequest.setDescription(film.getDescription());
         updateFilmRequest.setReleaseDate(film.getReleaseDate());
         updateFilmRequest.setDuration(film.getDuration());
-
+        updateFilmRequest.setLikedFilm(film.getLikedFilm());
         List<FilmGenre> genre = film.getGenres();
         if (!(genre == null || genre.isEmpty())) {
             updateFilmRequest.setGenres(film.getGenres().stream()
@@ -114,6 +120,9 @@ public class FilmMapper {
         }
         if (updateFilmRequest.hasDuration()) {
             film.setDuration(updateFilmRequest.getDuration());
+        }
+        if (updateFilmRequest.hasLikedFilm()) {
+            film.setLikedFilm(updateFilmRequest.getLikedFilm());
         }
         if (updateFilmRequest.hasGenres()) {
             film.setGenres(mapListFilmGenreFromListFilmGenreDto(updateFilmRequest.getGenres()));

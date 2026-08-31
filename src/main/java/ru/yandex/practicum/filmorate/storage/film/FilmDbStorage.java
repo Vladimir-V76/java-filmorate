@@ -64,12 +64,11 @@ public class FilmDbStorage implements FilmStorage {
     public Film update(Film film) {
         UpdateFilmRequest updateFilm = FilmMapper.mapToUpdateFilmRequest(film);
         long filmId = film.getId();
-        Film updatedFilm = filmRepository.findById(filmId)
-                .map(f -> FilmMapper.updateFilmFields(f, updateFilm))
-                .orElseThrow(() -> new FilmNotFoundException("Фильм не найден. ID: " + filmId));
+        Film updatedFilm = findFilmById(filmId);
+        FilmMapper.updateFilmFields(updatedFilm, updateFilm);
+
         List<FilmGenre> filmGenres = film.getGenres();
         FilmMpa mpa = film.getMpa();
-
         if (mpa != null) {
             FilmMpa filmMpa = findFilmMpaById(mpa.getId());
             updatedFilm = filmRepository.update(updatedFilm, filmMpa.getId());
@@ -78,13 +77,16 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         if (!(filmGenres == null || filmGenres.isEmpty())) {
-            filmGenreRepository.delete(filmId);
+            filmGenreRepository.delete(filmId, true);
             filmGenres.forEach(n -> {
                 FilmGenre fg = findFilmGenreById(n.getId());
                 filmGenreRepository.create(fg, filmId);
             });
         }
         if (!film.getLikedFilm().isEmpty()) {
+            if (film.getLikedFilm().contains(0L)) {
+                film.getLikedFilm().removeIf(i -> i == 0L);
+            }
             updateSetFilmLikedUser(film);
         }
         updatedFilm.setLikedFilm(findSetFilmLikedUserByFilmId(updatedFilm.getId()));
@@ -93,7 +95,10 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public void delete(Film film) {
-
+        Long filmId = film.getId();
+        filmRepository.findById(filmId)
+                .orElseThrow(() -> new FilmNotFoundException("Фильм не найден. ID: " + filmId));
+        filmRepository.delete(filmId);
     }
 
     @Override
@@ -113,13 +118,19 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
-    private List<FilmGenre> findListFilmGenresByFilmId(Long filmId) {
+    public List<FilmGenre> findListFilmGenresByFilmId(Long filmId) {
         return filmGenreRepository.findByFilmId(filmId).stream().toList();
     }
 
-    private Set<Long> findSetFilmLikedUserByFilmId(Long filmId) {
-        return filmLikedUserRepository.findById(filmId).stream()
+    public Set<Long> findSetFilmLikedUserByFilmId(Long filmId) {
+        return filmLikedUserRepository.findByFilmId(filmId).stream()
                 .map(FilmLikedUser::getUserId)
+                .collect(Collectors.toCollection(HashSet::new));
+    }
+
+    public Set<Long> findSetFilmLikedUserByUserId(Long userId) {
+        return filmLikedUserRepository.findByUserId(userId).stream()
+                .map(FilmLikedUser::getFilmId)
                 .collect(Collectors.toCollection(HashSet::new));
     }
 

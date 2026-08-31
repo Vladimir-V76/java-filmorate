@@ -28,7 +28,10 @@ public class FilmMpaDbStorage implements FilmMpaStorage {
 
     @Override
     public void delete(FilmMpa filmMpa) {
-
+        Long id = filmMpa.getId();
+        filmMpaRepository.findById(id)
+                .orElseThrow(() -> new MpaNotFoundException("Рейтинг фильма не найден. ID: " + id));
+        filmMpaRepository.delete(id);
     }
 
     @Override

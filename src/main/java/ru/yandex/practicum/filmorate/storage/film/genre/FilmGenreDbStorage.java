@@ -28,7 +28,10 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
 
     @Override
     public void delete(FilmGenre filmGenre) {
-
+        Long id = filmGenre.getId();
+        filmGenreRepository.findByGenreId(id)
+                .orElseThrow(() -> new FilmGenreNotFoundException("Жанр фильма не найден. ID: " + id));
+        filmGenreRepository.delete(id, false);
     }
 
     @Override

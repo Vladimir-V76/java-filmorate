@@ -13,6 +13,7 @@ public class FilmMpaRepository extends BaseRepository<FilmMpa> {
 
     public static final String FIND_BY_ID_QUERY = "SELECT * FROM mpa WHERE mpa_id = ?";
     public static final String FIND_ALL_QUERY = "SELECT * FROM mpa";
+    public static final String DELETE_QUERY = "DELETE FROM mpa WHERE mpa_id = ?";
 
     public FilmMpaRepository(JdbcTemplate jdbc, RowMapper<FilmMpa> mapper) {
         super(jdbc, mapper);
@@ -24,5 +25,12 @@ public class FilmMpaRepository extends BaseRepository<FilmMpa> {
 
     public List<FilmMpa> findAll() {
         return findMany(FIND_ALL_QUERY);
+    }
+
+    public void delete(Long mpaId) {
+        delete(
+                DELETE_QUERY,
+                mpaId
+        );
     }
 }

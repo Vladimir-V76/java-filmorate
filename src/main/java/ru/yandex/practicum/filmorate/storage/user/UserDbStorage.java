@@ -65,7 +65,10 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void delete(User user) {
-
+        Long userId = user.getId();
+        userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("Пользователь не найден. ID: " + userId));
+        userRepository.delete(userId);
     }
 
     @Override
@@ -78,7 +81,7 @@ public class UserDbStorage implements UserStorage {
         return user;
     }
 
-    private Map<Long, ConfirmFriend> findListConfirmedFriendsByUserId(long userId) {
+    public Map<Long, ConfirmFriend> findListConfirmedFriendsByUserId(long userId) {
         return confirmFriendRepository.findById(userId).stream()
                 .collect(Collectors.toMap(ConfirmFriend::getFriendId, Function.identity()));
     }

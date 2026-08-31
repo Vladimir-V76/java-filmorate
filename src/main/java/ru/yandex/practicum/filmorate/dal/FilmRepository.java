@@ -20,6 +20,7 @@ public class FilmRepository extends BaseRepository<Film> {
             "INSERT INTO films (film_name, description, release_date, duration, mpa_id) VALUES (?, ?, ?, ?, ?)";
     public static final String UPDATE_QUERY = "UPDATE films SET film_name = ?, description = ?, release_date = ?, " +
             "duration = ?, mpa_id = ? WHERE film_id = ?";
+    public static final String DELETE_QUERY = "DELETE FROM films WHERE film_id = ?";
 
     public FilmRepository(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper);
@@ -61,5 +62,12 @@ public class FilmRepository extends BaseRepository<Film> {
         );
 
         return film;
+    }
+
+    public void delete(Long id) {
+        delete(
+                DELETE_QUERY,
+                id
+        );
     }
 }

@@ -16,8 +16,9 @@ public class FilmGenreRepository extends BaseRepository<FilmGenre> {
     public static final String INSERT_QUERY =
             "MERGE INTO film_genre (film_id, genre_id) KEY (film_id, genre_id) VALUES (?, ?)";
     public static final String FIND_BY_GENRE_ID_QUERY = "SELECT * FROM genre WHERE genre_id = ?";
-    public static final String DELETE_QUERY = "DELETE FROM film_genre WHERE film_id = ?";
+    public static final String DELETE_FROM_FILM_GENRE_QUERY = "DELETE FROM film_genre WHERE film_id = ?";
     public static final String FIND_ALL_QUERY = "SELECT * FROM genre";
+    public static final String DELETE_FROM_GENRE_QUERY = "DELETE FROM genre WHERE genre_id = ?";
 
     public FilmGenreRepository(JdbcTemplate jdbc, RowMapper<FilmGenre> mapper) {
         super(jdbc, mapper);
@@ -40,11 +41,12 @@ public class FilmGenreRepository extends BaseRepository<FilmGenre> {
         );
     }
 
-    public void delete(Long filmId) {
-        delete(
-                DELETE_QUERY,
-                filmId
-        );
+    public void delete(Long id, boolean isFilmGenreDelete) {
+        if (isFilmGenreDelete) {
+            delete(DELETE_FROM_FILM_GENRE_QUERY, id);
+        } else {
+            delete(DELETE_FROM_GENRE_QUERY, id);
+        }
     }
 
     public List<FilmGenre> findAll() {

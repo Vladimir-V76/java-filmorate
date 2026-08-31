@@ -72,6 +72,8 @@ public class FilmService {
         if (!film.getLikedFilm().remove(user.getId())) {
             String message = "Фильм с id=%s пользователь с id=%d не лайкал.";
             throw new NotFoundItemException(String.format(message, id, userId));
+        } else {
+            film.getLikedFilm().add(0L);
         }
         log.trace("Из фильма с id={} лайк пользователя с id={} успешно удален", id, userId);
         film = filmStorage.update(film);

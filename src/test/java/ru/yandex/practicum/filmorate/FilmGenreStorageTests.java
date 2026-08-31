@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exception.FilmGenreNotFoundException;
@@ -15,6 +16,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 @SpringBootTest(classes = FilmorateApplication.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 public class FilmGenreStorageTests {
 
     @Autowired
@@ -44,4 +46,19 @@ public class FilmGenreStorageTests {
         }
     }
 
+    @Test
+    void filmGenreOnId1MastBeDeletedInDb() {
+        FilmGenre filmGenre = new FilmGenre();
+        filmGenre.setId(1L);
+        filmGenreStorage.delete(filmGenre);
+
+        assertThatThrownBy(() -> filmGenreStorage.findFilmGenreById(1L))
+                .isInstanceOf(FilmGenreNotFoundException.class)
+                .hasMessageContaining("Жанр фильма не найден. ID: 1");
+
+        List<FilmGenre> filmGenres = new ArrayList<>(filmGenreStorage.findAll());
+        System.out.println(filmGenres);
+        assertThat(filmGenres.size()).isEqualTo(5);
+
+    }
 }
