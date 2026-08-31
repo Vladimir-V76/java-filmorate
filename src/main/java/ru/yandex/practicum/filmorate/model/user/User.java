@@ -1,11 +1,10 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.model.user;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(of = {"email"})
@@ -15,5 +14,6 @@ public class User {
     private String login;
     private String name;
     private LocalDate birthday;
-    private Map<Long, ConfirmationFriendship> friendsMap = new HashMap<>();
+    private Set<Long> friendsSet = new HashSet<>(); //подтвержденные пользователи
+    private Map<Long, ConfirmFriend> confirmFriends = new HashMap<>();
 }

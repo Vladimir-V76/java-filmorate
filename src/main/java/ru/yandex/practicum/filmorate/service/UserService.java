@@ -1,80 +1,138 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dto.user.NewUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UpdateUserRequest;
+import ru.yandex.practicum.filmorate.dto.user.UserDto;
 import ru.yandex.practicum.filmorate.exception.DuplicateItemException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
-import ru.yandex.practicum.filmorate.model.ConfirmationFriendship;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.mapper.UserMapper;
+import ru.yandex.practicum.filmorate.model.user.ConfirmFriend;
+import ru.yandex.practicum.filmorate.model.user.User;
+import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
 public class UserService {
     UserStorage userStorage;
+    UserDbStorage userDbStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(
+            @Qualifier("inDbUserStorage")
+            UserStorage userStorage,
+            UserDbStorage userDbStorage) {
         this.userStorage = userStorage;
+        this.userDbStorage = userDbStorage;
     }
 
-    public User getUserById(Long id) {
-        validationId(id);
-        return userStorage.findUserById(id);
+    public UserDto create(NewUserRequest newUser) {
+        User user = UserMapper.mapToUserFormNewUserRequest(newUser);
+        checkUserValidation(user);
+        return UserMapper.mapToUserDto(userStorage.create(user));
     }
 
-    public User addOnFriends(Long id, Long friendId) {
-        validationId(id);
-        validationId(friendId);
-        User user = userStorage.findUserById(id);
-        User friend = userStorage.findUserById(friendId);
-        if (!(user.getFriendsMap().put(friend.getId(), ConfirmationFriendship.FALSE) == null)) {
-            throw new DuplicateItemException("Пользователь с id=" + friendId +
-                    " уже находится с списке друзей пользователя с id=" + id);
-        }
-        if (!friend.getFriendsMap().add(user.getId())) {
-            throw new DuplicateItemException("Пользователь с id=" + friendId +
-                    " уже находится с списке друзей пользователя с id=" + id);
-        }
-        log.trace("Пользователь с id={} успешно добавлен в друзья пользователю с id={} и наоборот", friendId, id);
-        return friend;
+    public UserDto update(UpdateUserRequest updateUser) {
+        User user = UserMapper.mapToUserFromUpdateUserRequest(updateUser);
+        checkUserValidation(user);
+        return UserMapper.mapToUserDto(userStorage.update(user));
     }
 
-    public User deleteOnFriends(Long id, Long friendId) {
-        validationId(id);
-        validationId(friendId);
-        User user = userStorage.findUserById(id);
-        User friend = userStorage.findUserById(friendId);
-        user.getFriendsMap().remove(friend.getId());
-        friend.getFriendsMap().remove(user.getId());
-        log.trace("Пользователь с id={} успешно удален из друзей пользователя с id={} и наоборот", friendId, id);
-        return friend;
-    }
-
-    public List<User> getFriendsListUserById(Long id) {
-        validationId(id);
-        User user = userStorage.findUserById(id);
-
-        return user.getFriendsMap().keySet().stream()
-                .map(u -> userStorage.findUserById(u))
+    public Collection<UserDto> findAll() {
+        return userStorage.findAll().stream()
+                .map(UserMapper::mapToUserDto)
                 .toList();
     }
 
-    public List<User> getListMutualFriends(Long id, Long otherId) {
-        validationId(id);
-        validationId(otherId);
+    public UserDto getUserById(Long id) {
+        return UserMapper.mapToUserDto(userStorage.findUserById(id));
+    }
+
+    public UserDto addOnFriends(Long id, Long friendId) {
+        User user = userStorage.findUserById(id);
+        User friend = userStorage.findUserById(friendId);
+        Map<Long, ConfirmFriend> userConfirmFriendMap = user.getConfirmFriends();
+
+        if (userConfirmFriendMap.containsKey(friendId)) {
+            ConfirmFriend confirmFriend = userConfirmFriendMap.get(friendId);
+            if (confirmFriend.isConfirmation()) {
+                String message = "Пользователь с id=%s уже находится в списке друзей пользователя с id=%d";
+                throw new DuplicateItemException(String.format(message, friendId, id));
+            } else {
+                user.setConfirmFriends(addConfirmFriendInMap(user, friendId, true));
+                user.getFriendsSet().add(friendId);
+
+                friend.setConfirmFriends(addConfirmFriendInMap(friend, id, true));
+                friend.getFriendsSet().add(id);
+                log.trace("Пользователь с id={} успешно добавлен в друзья пользователю с id={} и наоборот", friendId, id);
+            }
+
+        } else {
+            user.getFriendsSet().add(friendId);
+            user.setConfirmFriends(addConfirmFriendInMap(user, friendId, true));
+            friend.setConfirmFriends(addConfirmFriendInMap(friend, id, false));
+        }
+        userStorage.update(user);
+        userStorage.update(friend);
+        return UserMapper.mapToUserDto(user);
+    }
+
+    public static Map<Long, ConfirmFriend> addConfirmFriendInMap(User user, long id, boolean isConfirmed) {
+        Map<Long, ConfirmFriend> confirmFriendMap = user.getConfirmFriends();
+        ConfirmFriend confirmFriend = new ConfirmFriend();
+        confirmFriend.setFriendId(id);
+        confirmFriend.setConfirmation(isConfirmed);
+        confirmFriendMap.put(id, confirmFriend);
+
+        return confirmFriendMap;
+    }
+
+    public UserDto deleteOnFriends(Long id, Long friendId) {
+        User user = userStorage.findUserById(id);
+        User friend = userStorage.findUserById(friendId);
+        user.getFriendsSet().remove(friend.getId());
+        user.getConfirmFriends().remove(friend.getId());
+        userStorage.update(user);
+
+        log.trace("Пользователь с id={} успешно удален из друзей пользователя с id={} и наоборот", friendId, id);
+        return UserMapper.mapToUserDto(friend);
+    }
+
+    public List<UserDto> getFriendsListUserById(Long id) {
+        User user = userStorage.findUserById(id);
+        return user.getFriendsSet().stream()
+                .map(u -> userStorage.findUserById(u))
+                .map(UserMapper::mapToUserDto)
+                .toList();
+    }
+
+    public List<UserDto> getListMutualFriends(Long id, Long otherId) {
         User user = userStorage.findUserById(id);
         User otherUser = userStorage.findUserById(otherId);
-        return user.getFriendsMap().keySet().stream()
-                .filter(u -> otherUser.getFriendsMap().containsKey(u))
+        return user.getFriendsSet().stream()
+                .filter(u -> otherUser.getFriendsSet().contains(u))
                 .map(u -> userStorage.findUserById(u))
+                .map(UserMapper::mapToUserDto)
                 .toList();
     }
 
-    public void validationId(Long id) {
-        if (id <= 0) {
-            throw new ValidationUserException("Неверный id=" + id + ". Должно быть положительное число.");
+    private static void checkUserValidation(User user) {
+        String userValidation = "Ok";
+        if (user.getBirthday() == null) {
+            userValidation = "Запрос не полный, отсутствует дата рождения";
+        }
+        if (user.getLogin().contains(" ")) {
+            userValidation = "Логин не может содержать пробелы";
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
+        if (!userValidation.equals("Ok")) {
+            throw new ValidationUserException(userValidation);
         }
     }
 }

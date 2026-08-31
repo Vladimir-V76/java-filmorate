@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.HttpMediaTypeException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -11,13 +12,24 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 @RestControllerAdvice
 public class ErrorHandler {
 
-    @ExceptionHandler({FilmNotFoundException.class, UserNotFoundException.class, NotFoundItemException.class})
+    @ExceptionHandler({FilmNotFoundException.class,
+            UserNotFoundException.class,
+            NotFoundItemException.class,
+            FilmGenreNotFoundException.class,
+            MpaNotFoundException.class
+    })
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFound(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler({ValidationFilmException.class, ValidationUserException.class, HttpMediaTypeException.class})
+    @ExceptionHandler({ValidationFilmException.class,
+            ValidationUserException.class,
+            HttpMediaTypeException.class,
+            MethodArgumentNotValidException.class,
+            ValidationFilmGenreException.class,
+            ValidationFilmMpaException.class
+    })
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidation(final RuntimeException e) {
         return new ErrorResponse(e.getMessage());
@@ -31,7 +43,13 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleInternalServer(final InternalServerException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleOtherExceptions(final Throwable e) {
-        return new ErrorResponse("Произошла непредвиденная ошибка.");
+        return new ErrorResponse("Произошла непредвиденная ошибка. " + e.getMessage());
     }
 }
