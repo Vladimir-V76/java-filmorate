@@ -1,0 +1,12 @@
+MERGE INTO mpa (mpa_id, mpa_name) KEY (mpa_id) VALUES (1, 'G');
+MERGE INTO mpa (mpa_id, mpa_name) KEY (mpa_id) VALUES (2, 'PG');
+MERGE INTO mpa (mpa_id, mpa_name) KEY (mpa_id) VALUES (3, 'PG_13');
+MERGE INTO mpa (mpa_id, mpa_name) KEY (mpa_id) VALUES (4, 'R');
+MERGE INTO mpa (mpa_id, mpa_name) KEY (mpa_id) VALUES (5, 'NC_17');
+
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (1, 'COMEDY');
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (2, 'DRAMA');
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (3, 'CARTOON');
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (4, 'THRILLER');
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (5, 'DOCUMENTARY');
+MERGE INTO genre (genre_id, genre_name) KEY (genre_id) VALUES (6, 'ACTION');

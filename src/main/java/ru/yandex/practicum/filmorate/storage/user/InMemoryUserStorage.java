@@ -5,26 +5,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationUserException;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.user.User;
 
 import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
-@Component
+@Component("inMemoryUserStorage")
 @Getter
 public class InMemoryUserStorage implements UserStorage {
 
     private static final Map<Long, User> users = new TreeMap<>();
-
-    public static void clear() {
-        users.clear();
-    }
-
-    @Override
-    public void delete(User user) {
-
-    }
 
     @Override
     public User create(User user) {

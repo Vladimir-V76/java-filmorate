@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.model.film;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -19,6 +19,6 @@ public class Film {
     @EqualsAndHashCode.Exclude
     private Set<Long> likedFilm = new HashSet<>();
 
-    private List<FilmGenre> genre;
-    private FilmRating rating;
+    private List<FilmGenre> genres;
+    private FilmMpa mpa;
 }
